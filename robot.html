@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human Verification</title>
+    <style>
+      .img1 {
+        content: url("https://picsum.photos/id/237/200/300");
+      }
+      .img2 {
+        content: url("https://picsum.photos/seed/picsum/200/300");
+      }
+      .img3 {
+        content: url("https://picsum.photos/200/300?grayscale");
+      }
+      .img4 {
+        content: url("https://picsum.photos/200/300/");
+      }
+      .img5 {
+        content: url("https://picsum.photos/200/300.jpg");
+      }
+      img {
+        margin: 10px;
+        border: 5px solid #555;
+        width: 10%;
+      }
+      .flex {
+        display: flex;
+        justify-content: center;
+      }
+      .selected {
+        border: 5px solid rgb(0, 195, 255);
+      }
+      p {
+        text-align: center;
+      }
+      button {
+        margin: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex">
+      <img class="img1" src="https://picsum.photos/id/237/200/300" alt="" />
+      <img
+        class="img2"
+        src="https://picsum.photos/seed/picsum/200/300"
+        alt=""
+      />
+      <img class="img3" src="https://picsum.photos/200/300?grayscale" alt="" />
+      <img class="img4" src="https://picsum.photos/200/300/" alt="" />
+      <img class="img5" src="https://picsum.photos/200/300.jpg" alt="" />
+      <img class="img6" src="https://picsum.photos/id/237/200/300" alt="" />
+    </div>
+    <h3 id="h">
+      Please click on the identical tiles to verify that you are not a robot.
+    </h3>
+    <button id="reset" style="display: none">Reset</button>
+    <button id="verify" style="display: none">Verify</button>
+    <p id="para" style="display: none"></p>
+
+    <script>
+      const images = document.querySelectorAll("img");
+      const resetBtn = document.getElementById("reset");
+      const verifyBtn = document.getElementById("verify");
+      const para = document.getElementById("para");
+
+      let clicks = 0;
+      let selectedImages = [];
+
+      function shuffleImages() {
+        const srcArray = [];
+        images.forEach((image) => {
+          const src = image.getAttribute("src");
+          srcArray.push(src);
+        });
+
+        for (let i = srcArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [srcArray[i], srcArray[j]] = [srcArray[j], srcArray[i]];
+        }
+
+        images.forEach((image, index) => {
+          image.setAttribute("src", srcArray[index]);
+        });
+      }
+
+      function resetState() {
+        clicks = 0;
+        selectedImages = [];
+        para.style.display = "none";
+        verifyBtn.style.display = "none";
+        resetBtn.style.display = "none";
+        images.forEach((image) => {
+          image.classList.remove("selected");
+        });
+        shuffleImages();
+      }
+
+      function checkVerification() {
+        if (selectedImages.length === 2) {
+          verifyBtn.style.display = "inline-block";
+        } else {
+          verifyBtn.style.display = "none";
+        }
+      }
+
+      function handleImageClick(event) {
+        const clickedImage = event.target;
+        if (clicks >= 2) {
+          para.innerText = "You can select a maximum of two images.";
+          para.style.color = "red";
+          para.style.display = "block";
+          return;
+        }
+        if (clickedImage.classList.contains("selected")) {
+          return;
+        }
+        clickedImage.classList.add("selected");
+        selectedImages.push(clickedImage.getAttribute("src"));
+        clicks++;
+        if (clicks === 1) {
+          resetBtn.style.display = "inline-block";
+        }
+        checkVerification();
+      }
+      resetBtn.addEventListener("click", handleResetClick);
+      function handleResetClick() {
+        resetState();
+      }
+      verifyBtn.addEventListener("click", handleVerifyClick);
+
+      function handleVerifyClick() {
+        if (selectedImages[0] === selectedImages[1]) {
+          para.innerText = "You are a human. Congratulations!";
+        } else {
+          para.innerText =
+            "We can't verify you as a human. You selected the non-identical tiles.";
+        }
+        para.style.color = "black";
+        para.style.display = "block";
+        verifyBtn.style.display = "none";
+      }
+
+      images.forEach((image) => {
+        image.addEventListener("click", handleImageClick);
+      });
+    </script>
+  </body>
+</html>
